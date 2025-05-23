@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consola de Parametrización CRM</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="assets/images/logo.svg" alt="Logo CRM" id="logo">
+            <h1>Consola de Parametrización CRM</h1>
+        </div>
+        <nav>
+            <ul id="main-nav">
+                <li><a href="#" class="nav-item active" data-section="embudos">Embudos</a></li>
+                <li><a href="#" class="nav-item" data-section="automatizaciones">Automatizaciones</a></li>
+                <li><a href="#" class="nav-item" data-section="ia">Configuración IA</a></li>
+                <li><a href="#" class="nav-item" data-section="configuracion">Configuración</a></li>
+                <li class="nav-actions">
+                    <button id="btnExportar" class="btn btn-outline" title="Exportar configuración">
+                        <i class="fas fa-file-export"></i> Exportar
+                    </button>
+                    <button id="btnImportar" class="btn btn-outline" title="Importar configuración">
+                        <i class="fas fa-file-import"></i> Importar
+                    </button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;">
+                </li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main id="app-container">
+        <!-- El contenido se cargará dinámicamente según la sección seleccionada -->
+        <div id="embudos-section" class="section-container active">
+            <div class="section-header">
+                <h2>Gestión de Embudos de Venta</h2>
+                <button id="btnNuevoEmbudo" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nuevo Embudo
+                </button>
+            </div>
+            <div class="cards-container" id="embudos-list">
+                <!-- Aquí se cargarán dinámicamente los embudos -->
+                <div class="empty-state" id="embudos-empty">
+                    <i class="fas fa-funnel-dollar empty-icon"></i>
+                    <h3>No hay embudos configurados</h3>
+                    <p>Crea tu primer embudo de ventas para comenzar a configurar tu CRM.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="automatizaciones-section" class="section-container">
+            <div class="section-header">
+                <h2>Diseño de Automatizaciones</h2>
+                <div class="breadcrumb" id="automatizacion-breadcrumb">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </div>
+            <div class="content-container" id="automatizaciones-container">
+                <div class="empty-state" id="automatizaciones-empty">
+                    <i class="fas fa-robot empty-icon"></i>
+                    <h3>Selecciona una etapa</h3>
+                    <p>Primero selecciona un embudo y una etapa para configurar sus automatizaciones.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="ia-section" class="section-container">
+            <div class="section-header">
+                <h2>Configuración Guiada de IA</h2>
+            </div>
+            <div class="tabs-container">
+                <div class="tabs-header">
+                    <button class="tab-button active" data-tab="intenciones">Intenciones</button>
+                    <button class="tab-button" data-tab="conocimiento">Base de Conocimiento</button>
+                </div>
+                <div class="tab-content active" id="intenciones-tab">
+                    <div class="content-container" id="intenciones-container">
+                        <!-- Contenido dinámico de intenciones -->
+                    </div>
+                </div>
+                <div class="tab-content" id="conocimiento-tab">
+                    <div class="content-container" id="conocimiento-container">
+                        <!-- Contenido dinámico de base de conocimiento -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="configuracion-section" class="section-container">
+            <div class="section-header">
+                <h2>Configuración Global</h2>
+            </div>
+            <div class="content-container" id="configuracion-container">
+                <!-- El contenido de la configuración global y sus módulos (Lead Scoring, etc.) se renderizará aquí por globalSettings.js -->
+                <div class="empty-state">
+                    <i class="fas fa-cogs empty-icon"></i>
+                    <h3>Cargando configuración...</h3>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modales -->
+    <div id="modal-container" class="modal-backdrop">
+        <div class="modal" id="modal-embudo">
+            <!-- Contenido dinámico para el modal -->
+        </div>
+    </div>
+
+    <!-- Plantillas HTML para componentes dinámicos -->
+    <div id="templates" style="display:none;">
+        <!-- Plantilla para crear/editar embudo -->
+        <div id="template-modal-embudo">
+            <div class="modal-header">
+                <h3>Nuevo Embudo</h3>
+                <button class="btn-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-embudo">
+                    <div class="form-group">
+                        <label for="nombre">Nombre del Embudo</label>
+                        <input type="text" id="nombre" name="nombre" required placeholder="Ej: Ventas B2B">
+                    </div>
+                    <div class="form-group">
+                        <label for="descripcion">Descripción</label>
+                        <textarea id="descripcion" name="descripcion" placeholder="Describe el propósito de este embudo..."></textarea>
+                    </div>
+                    <input type="hidden" id="embudoId" name="embudoId">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-cancel">Cancelar</button>
+                <button class="btn btn-primary" id="btn-guardar-embudo">Guardar</button>
+            </div>
+        </div>
+
+        <!-- Plantilla para crear/editar etapa -->
+        <div id="template-modal-etapa">
+            <div class="modal-header">
+                <h3>Nueva Etapa</h3>
+                <button class="btn-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-etapa">
+                    <div class="form-group">
+                        <label for="nombreEtapa">Nombre de la Etapa</label>
+                        <input type="text" id="nombreEtapa" name="nombreEtapa" required placeholder="Ej: Calificación">
+                    </div>
+                    <input type="hidden" id="etapaId" name="etapaId">
+                    <input type="hidden" id="embudoId" name="embudoId">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-cancel">Cancelar</button>
+                <button class="btn btn-primary" id="btn-guardar-etapa">Guardar</button>
+            </div>
+        </div>
+
+        <!-- Plantilla para crear/editar plantilla de mensaje -->
+        <div id="template-modal-plantilla">
+            <div class="modal-header">
+                <h3>Nueva Plantilla de Mensaje</h3>
+                <button class="btn-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-plantilla">
+                    <div class="form-group">
+                        <label for="nombrePlantilla">Nombre de la Plantilla</label>
+                        <input type="text" id="nombrePlantilla" name="nombrePlantilla" required placeholder="Ej: Bienvenida">
+                    </div>
+                    <div class="form-group">
+                        <label for="tipoPlantilla">Tipo de Mensaje</label>
+                        <select id="tipoPlantilla" name="tipoPlantilla" required>
+                            <option value="">Selecciona un tipo</option>
+                            <option value="email">Email</option>
+                            <option value="whatsapp">WhatsApp</option>
+                            <option value="sms">SMS</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="textoPlantilla">Contenido</label>
+                        <textarea id="textoPlantilla" name="textoPlantilla" required placeholder="Escribe el contenido del mensaje...&#10;Puedes usar {{nombre_cliente}} para variables"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="variablesSugeridas">Variables Sugeridas</label>
+                        <input type="text" id="variablesSugeridas" name="variablesSugeridas" placeholder="nombre_cliente, empresa, fecha (separadas por coma)">
+                    </div>
+                    <input type="hidden" id="plantillaId" name="plantillaId">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-cancel">Cancelar</button>
+                <button class="btn btn-primary" id="btn-guardar-plantilla">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/core/utils.js"></script>
+    <script src="assets/js/core/db.js"></script>
+    <script src="assets/js/core/router.js"></script>
+    <script src="assets/js/components/funnelBuilder.js"></script>
+    <script src="assets/js/components/automationEditor.js"></script>
+    <script src="assets/js/components/aiConfigurator.js"></script>
+    <script src="assets/js/components/globalSettings.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html> 
